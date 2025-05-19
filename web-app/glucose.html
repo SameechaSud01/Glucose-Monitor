@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glucose Levels</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Glucose Levels</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="glucose.html" id="glucose-tab">Glucose Levels</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="glucose">
+        <div id="glucose-chart">
+            <!-- Glucose levels chart goes here -->
+            <div class="glucose-info">
+                <div class="glucose-circle">
+                    <span id="glucose-value">
+                      <div id="data"></div>
+                      <script src="https://cdn.socket.io/4.4.0/socket.io.min.js"></script>
+                      <script>
+                        const socket = io();
+                        const glucoseValue = document.getElementById('glucose-value');
+                        const glucoseCircle = document.querySelector('.glucose-circle');
+                  
+                        // Listen for 'data' event from the server
+                        socket.on('data', (data) => {
+                          const value = parseFloat(data); // Convert the data to a float
+                          document.getElementById('data').innerText = value;
+                  
+                          
+                          // Update circle background color based on the value
+                          if (value < 94) {
+                            glucoseCircle.style.backgroundColor = 'green';
+                          } else if (value > 115) {
+                            glucoseCircle.style.backgroundColor = 'red';
+                          } else {
+                            glucoseCircle.style.backgroundColor = 'blue'; // Default color
+                          }
+                        });
+                        const nameInput = document.getElementById('name');
+                        const ageInput = document.getElementById('age');
+                        const captureDataButton = document.getElementById('capture-data');
+
+                        captureDataButton.addEventListener('click', () => {
+                            fetch('/capture-data', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    name: nameInput.value,
+                                    age: ageInput.value,
+                                    glucoseValue: document.getElementById('data').innerText,
+                                    currentDate: new Date().toISOString()
+                                })
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    console.log('Data captured successfully');
+                                    const capturedData = `${nameInput.value}, ${ageInput.value}, ${document.getElementById('data').innerText}, ${new Date().toISOString()}`;
+                                    const capturedDataContainer = document.getElementById('captured-data-container');
+                                    const newDataElement = document.createElement('p');
+                                    newDataElement.textContent = capturedData;
+                                    capturedDataContainer.appendChild(newDataElement);                                } else {
+                                    console.error('Error capturing data');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                        });
+                      </script>
+                    </span>
+                </div>
+                <p class="glucose-label">Current Glucose Level</p>
+            </div>
+
+        
+
+
+    
+
+
+
+    <div class="chart">
+        <div class="low-glucose">
+            <p>Low Glucose Level</p>
+        </div>
+        <div class="normal-glucose">
+            <p>Normal Glucose Level</p>
+        </div>
+        <div class="high-glucose">
+            <p>High Glucose Level</p>
+        </div>
+    </div>
+
+
+
+    <div id="captured-data-container"></div>
+
+    <footer>
+        Enhancing Elderly Care: Remote Glucose Monitoring for Health and Independence
+    </footer>
+</body>
+</html>
